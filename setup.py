@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='najrono',
-    version='0.0.2',
+    version='0.0.3',
     packages=find_packages(),
     install_requires=[
         'jalali_core==1.0.0',
