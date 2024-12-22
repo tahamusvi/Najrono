@@ -2,9 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='najrono',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_packages(),
-    install_requires=[],
+    install_requires=[
+        'jalali_core==1.0.0',
+        'jdatetime==5.0.0',
+    ],
     author='Taha Musvi',
     author_email='TahaM8000@gmail.com',
     description='Django library for managing **Jalali (Persian) dates** in your models',

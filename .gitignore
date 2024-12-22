@@ -3,3 +3,5 @@ dist
 build
 najrono.egg-info
 up.py
+env-najrono
+__pycache__

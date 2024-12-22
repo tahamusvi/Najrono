@@ -1,2 +1,1 @@
-def sumSimple(a,b):
-    return a + b
+from utils import SimpleConverter
