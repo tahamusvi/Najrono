@@ -20,9 +20,9 @@ class CacheableModelMixin:
         "annual": None,  # Permanent cache for past years
     }
 
-    def get_cache_key(self, key_type, user_id):
+    def get_cache_key(self, key_type, user_id,ref_id=None):
         """Generate a cache key based on key type and user."""
-        return f"{self._meta.app_label}:logs:{self._meta.model_name}:{key_type}:{user_id}"
+        return f"{self._meta.app_label}:logs:{self._meta.model_name}:{key_type}:{user_id}:{ref_id}"
     
     @classmethod
     def get_month(cls, year, month):
@@ -35,14 +35,18 @@ class CacheableModelMixin:
         return query
    
     @classmethod
-    def get_cached_logs(cls, user=None,query_set=None):
+    def get_cached_logs(cls, user=None,query_set=None,ref_id=None):
         """
         Fetch logs with caching logic applied.
         Divides logs into past years, last year, last month, and today.
+        ref_id is for save cache
         """
 
+        user_query = True
         if query_set == None:
             query_set = cls.objects.all()
+            user_query = False
+
 
         if user != None:
             query_set = query_set.filter(user=user)
@@ -71,7 +75,7 @@ class CacheableModelMixin:
 
         #-------------------------------
         # 2. Fetch logs for the current month (today + past days)
-        month_key = cls().get_cache_key("daily", user.id)
+        month_key = cls().get_cache_key("daily", user.id,ref_id) if user_query else cls().get_cache_key("daily", user.id)
         result["daily"] = cache.get(month_key)
 
         if result["daily"] is None:
@@ -102,7 +106,7 @@ class CacheableModelMixin:
 
         #-------------------------------
         # 3. Fetch logs for the current year (month logs + past months)
-        year_key = cls().get_cache_key("monthly", user.id)
+        year_key = cls().get_cache_key("monthly", user.id,ref_id) if user_query else cls().get_cache_key("monthly", user.id)
         result["monthly"] = cache.get(year_key)
 
         if result["monthly"] is None:
@@ -139,7 +143,7 @@ class CacheableModelMixin:
             
         #-------------------------------
         # 4. Fetch logs for past years
-        past_year_key = cls().get_cache_key("annual", user.id)
+        past_year_key = cls().get_cache_key("annual", user.id,ref_id) if user_query else cls().get_cache_key("annual", user.id)
         result["annual"] = cache.get(past_year_key)
 
         if result["annual"] is None:
