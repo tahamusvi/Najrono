@@ -2,11 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='najrono',
-    version='0.0.3',
+    version='0.0.6',
     packages=find_packages(),
     install_requires=[
         'jalali_core==1.0.0',
         'jdatetime==5.0.0',
+        'django==4.2.16',
     ],
     author='Taha Musvi',
     author_email='TahaM8000@gmail.com',
