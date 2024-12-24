@@ -14,8 +14,7 @@ class CacheableModelMixin:
 
 
     CACHE_TIMEOUTS = {
-        "today": 60 * 60 * 2,  # Cache for today, 2 hours
-        "daily": 60 * 60 * 24 * 7,  # Cache for the current month, 1 week
+        "daily": 60 * 60 * 24,  # Cache for the current month, 1 week
         "monthly": 60 * 60 * 24 * 30,  # Cache for the current year, 1 month
         "annual": None,  # Permanent cache for past years
     }
@@ -35,7 +34,7 @@ class CacheableModelMixin:
         return query
    
     @classmethod
-    def get_cached_logs(cls, user=None,query_set=None,ref_id=None):
+    def get_cached_logs(cls, user=None,query_set=None,ref_id=None,use_cache=True):
         """
         Fetch logs with caching logic applied.
         Divides logs into past years, last year, last month, and today.
@@ -61,6 +60,7 @@ class CacheableModelMixin:
         current_day = str(current_date.day).zfill(2)
         today = f"{current_year}-{current_month}-{current_day}"
 
+
         result = {
             "daily": None,
             "monthly": None,
@@ -78,7 +78,7 @@ class CacheableModelMixin:
         month_key = cls().get_cache_key("daily", user.id,ref_id) if user_query else cls().get_cache_key("daily", user.id)
         result["daily"] = cache.get(month_key)
 
-        if result["daily"] is None:
+        if result["daily"] is None or not use_cache:
             output["is_cache_daily"] = 'fresh data'
 
             # Fetch logs for the entire current month (up to today)
@@ -109,7 +109,7 @@ class CacheableModelMixin:
         year_key = cls().get_cache_key("monthly", user.id,ref_id) if user_query else cls().get_cache_key("monthly", user.id)
         result["monthly"] = cache.get(year_key)
 
-        if result["monthly"] is None:
+        if result["monthly"] is None or not use_cache:
             output["is_cache_monthly"] = 'fresh data'
             # Create a dictionary to store the count of records for each month
             result["monthly"] = {}
